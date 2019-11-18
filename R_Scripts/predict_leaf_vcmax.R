@@ -34,11 +34,11 @@ library(readr)    # readr - read_csv function to pull data from EcoSIS
 library(plotrix)  # plotCI - to generate obsvered vs predicted plot with CIs
 library(scales)   # alpha() - for applying a transparency to data points
 library(devtools)
+library(httr)
 
 # define function to grab PLSR model from GitHub
 #devtools::source_gist("gist.github.com/christophergandrud/4466237")
 source_GitHubData <-function(url, sep = ",", header = TRUE) {
-  require(httr)
   request <- GET(url)
   stop_for_status(request)
   handle <- textConnection(content(request, as = 'text'))
@@ -163,9 +163,6 @@ hist(LeafVcmax)
 LeafVcmax.PLSR.dataset <- data.frame(sample_info, FS_PLSR_LeafVcmax_umol_m2_s=LeafVcmax)
 head(LeafVcmax.PLSR.dataset)
 
-plot(LeafVcmax.PLSR.dataset$Vcmax_PLSR_Temperature, LeafVcmax.PLSR.dataset$FS_PLSR_LeafVcmax_umol_m2_s,
-     xlim=c(0,200), ylim=c(0,200))
-
 # Derive PLSR Vcmax estimate uncertainties - ugly, we can do better than this
 print("**** Deriving uncertainty estimates ****")
 dims <- dim(LeafVcmax.plsr.jk.coeffs)
@@ -194,7 +191,7 @@ LeafVcmax.PLSR.dataset.out <- data.frame(LeafVcmax.PLSR.dataset,stats,
 head(LeafVcmax.PLSR.dataset.out)
 
 # output results
-write.csv(x = LeafVcmax.PLSR.dataset.out, file = file.path(output_dir,"Leaf_spectra_PLSR_estimated_Vcmax_data.csv"),
+write.csv(x = LeafVcmax.PLSR.dataset.out, file = file.path(output_dir,"UW-Biotron_PLSR_estimated_Vcmax_data.csv"),
           row.names = F)
 # calculate error stats
 rmse <- sqrt(mean(LeafVcmax.PLSR.dataset.out$residual^2, na.rm=T))
@@ -209,7 +206,7 @@ ptcex <- 1.8
 cexaxis <- 1.3
 cexlab <- 1.8
 print("**** Plotting PLSR estimated Vcmax validation plot. Writing to scratch space ****")
-png(file=file.path(output_dir,'Leaf_spectra_PLSR_estimated_Vcmax_validation_plot.png'),height=3000,
+png(file=file.path(output_dir,'UW-Biotron_PLSR_estimated_Vcmax_validation_plot.png'),height=3000,
     width=3900, res=340)
 par(mfrow=c(1,1), mar=c(4.5,5.4,1,1), oma=c(0.3,0.9,0.3,0.1)) # B, L, T, R
 plotCI(LeafVcmax.PLSR.dataset.out$FS_PLSR_LeafVcmax_umol_m2_s,LeafVcmax.PLSR.dataset.out$Vcmax_PLSR_Temperature,
